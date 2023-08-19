@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { IsNull, Not, Raw, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 
 @Injectable()
@@ -13,13 +13,38 @@ export class TasksService {
   ) {}
 
   async create(userid: string, createTaskDto: CreateTaskDto) {
-    createTaskDto.userid = userid;
-    const task = await this.tasksRepository.create(createTaskDto);
-    return this.tasksRepository.save(task);
+    try {
+      createTaskDto.userid = userid;
+      const dayAsString = createTaskDto.day.join(',');
+      const transformedDto = {
+        ...createTaskDto,
+        day: dayAsString,
+      };
+      const task = await this.tasksRepository.create(transformedDto);
+      return this.tasksRepository.save(task);
+    } catch (error) {
+      return error;
+    }
   }
 
   async findAll() {
-    return this.tasksRepository.find();
+    const tasks = await this.tasksRepository.find();
+    const tasksFormated = tasks.map((task) => {
+      const day = task.day.split(',').map(Number);
+      return {
+        ...task,
+        day: day,
+      };
+    });
+    return tasksFormated;
+  }
+
+  async find(day: string): Promise<Task[]> {
+    return this.tasksRepository.find({
+      where: {
+        day: Raw((alias) => `${alias} LIKE '%${day}%'`),
+      },
+    });
   }
 
   async findOne(taskid: string) {
@@ -27,13 +52,22 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskid} not found`);
     }
-    return task;
+    const day = task.day.split(',').map(Number);
+    return {
+      ...task,
+      day: day,
+    };
   }
 
   async update(taskid: string, updateTaskDto: UpdateTaskDto) {
+    const dayAsString = updateTaskDto.day.join(',');
+    const transformedDto = {
+      ...updateTaskDto,
+      day: dayAsString,
+    };
     const task = await this.tasksRepository.preload({
       taskid: taskid,
-      ...updateTaskDto,
+      ...transformedDto,
     });
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskid} not found`);

@@ -22,14 +22,17 @@ export class Task {
   @Column()
   description: string;
 
-  @Column({ type: 'timestamp' })
-  date: Date;
+  @Column()
+  day: string;
 
   @Column()
-  priority: number;
+  hour: string;
 
   @Column()
-  done: boolean;
+  instructor: string;
+
+  @Column()
+  limit: number;
 
   @CreateDateColumn()
   createdAt: Date;

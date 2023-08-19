@@ -16,6 +16,8 @@ import { UsersService } from './users/users.service';
 import { TasksModule } from './tasks/tasks.module';
 import { Task } from './tasks/entities/task.entity';
 import { AuthMiddleware } from './Auth/auth.middleware';
+import { TaskCalendarModule } from './task-calendar/task-calendar.module';
+import { TaskCalendar } from './task-calendar/entities/task-calendar.entity';
 
 @Module({
   imports: [
@@ -26,13 +28,14 @@ import { AuthMiddleware } from './Auth/auth.middleware';
       username: 'server',
       password: '123456',
       database: 'lsbu',
-      entities: [User, Task],
+      entities: [User, Task, TaskCalendar],
       synchronize: false,
     }),
     TypeOrmModule.forFeature([User]),
     UsersModule,
     AuthModule,
     TasksModule,
+    TaskCalendarModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard, JwtService, UsersService],
@@ -42,10 +45,9 @@ export class AppModule implements NestModule {
     consumer
       .apply(AuthMiddleware)
       .exclude(
-        // Especifique as rotas do PublicController que você deseja excluir da verificação
         { path: '/auth', method: RequestMethod.ALL },
-        // Adicione mais objetos { path, method } se necessário
+        { path: '/users/create', method: RequestMethod.ALL },
       )
-      .forRoutes('*'); // Aplica o middleware a todas as rotas
+      .forRoutes('*');
   }
 }

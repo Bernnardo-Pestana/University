@@ -30,7 +30,6 @@ export class TasksController {
       'dr6XXiu71Zq4&gO7KejpHNabp',
     ) as JwtPayload;
     const userid = decodedToken.id;
-    console.log(userid);
     return this.tasksService.create(userid, createTaskDto);
   }
 

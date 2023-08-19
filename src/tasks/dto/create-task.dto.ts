@@ -1,12 +1,10 @@
 import {
   IsNotEmpty,
   IsString,
-  IsDate,
-  IsBoolean,
-  IsNumber,
   IsOptional,
+  IsArray,
+  IsNumber,
 } from 'class-validator';
-import { Timestamp } from 'typeorm';
 
 export class CreateTaskDto {
   @IsNotEmpty()
@@ -19,15 +17,16 @@ export class CreateTaskDto {
   @IsNotEmpty()
   @IsString()
   description: string;
-  @IsOptional()
   @IsNotEmpty()
-  @IsDate()
-  date: Timestamp;
-  @IsOptional()
+  @IsArray()
+  day: number[];
+  @IsNotEmpty()
+  @IsString()
+  hour: string;
+  @IsNotEmpty()
+  @IsString()
+  instructor: string;
   @IsNotEmpty()
   @IsNumber()
-  priority: number;
-  @IsNotEmpty()
-  @IsBoolean()
-  done: boolean;
+  limit: number;
 }
