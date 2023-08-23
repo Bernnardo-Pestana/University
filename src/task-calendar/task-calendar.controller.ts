@@ -35,8 +35,13 @@ export class TaskCalendarController {
     return this.taskCalendarService.findAll(date.date);
   }
 
+  @Get(':id')
+  findMyTickets(@Param('id') id: string) {
+    return this.taskCalendarService.findMyTickets(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.taskCalendarService.remove(+id);
+    return this.taskCalendarService.remove(id);
   }
 }
