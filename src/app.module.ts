@@ -18,6 +18,8 @@ import { Task } from './tasks/entities/task.entity';
 import { AuthMiddleware } from './Auth/auth.middleware';
 import { TaskCalendarModule } from './task-calendar/task-calendar.module';
 import { TaskCalendar } from './task-calendar/entities/task-calendar.entity';
+import { ParkingModule } from './parking/parking.module';
+import { Parking } from './parking/entities/parking.entity';
 
 @Module({
   imports: [
@@ -25,10 +27,10 @@ import { TaskCalendar } from './task-calendar/entities/task-calendar.entity';
       type: 'mysql',
       host: 'localhost',
       port: 3306,
-      username: 'server',
+      username: 'root',
       password: '123456',
       database: 'lsbu',
-      entities: [User, Task, TaskCalendar],
+      entities: [User, Task, TaskCalendar, Parking],
       synchronize: false,
     }),
     TypeOrmModule.forFeature([User]),
@@ -36,6 +38,7 @@ import { TaskCalendar } from './task-calendar/entities/task-calendar.entity';
     AuthModule,
     TasksModule,
     TaskCalendarModule,
+    ParkingModule,
   ],
   controllers: [AppController],
   providers: [AppService, RolesGuard, JwtService, UsersService],
