@@ -52,6 +52,11 @@ export class TaskCalendarService {
     return { taskOnDay, daysOfWeekNames: daysOfWeekNames[dayOfTheWeek] };
   }
 
+  async count(options: any) {
+    const count = await this.taskCalendarRepository.count(options);
+    return count;
+  }
+
   async findMyTickets(userid: string) {
     return this.taskCalendarRepository.find({ where: { userid } });
   }

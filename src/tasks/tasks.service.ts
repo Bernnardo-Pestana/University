@@ -4,6 +4,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Raw, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
+import { TaskCalendar } from 'src/task-calendar/entities/task-calendar.entity';
 
 @Injectable()
 export class TasksService {
@@ -27,16 +28,28 @@ export class TasksService {
     }
   }
 
-  async findAll() {
-    const tasks = await this.tasksRepository.find();
-    const tasksFormated = tasks.map((task) => {
-      const day = task.day.split(',').map(Number);
-      return {
-        ...task,
-        day: day,
-      };
-    });
-    return tasksFormated;
+  async findAll(infoDay: any) {
+    const tasks = await this.find(infoDay.day);
+    const countTasks = await this.tasksRepository.count();
+    const tasksFormatted = await Promise.all(
+      tasks.map(async (task) => {
+        const count = await this.tasksRepository
+          .createQueryBuilder()
+          .select('COUNT(taskCalendar.taskid)', 'count')
+          .from(TaskCalendar, 'taskCalendar')
+          .where('taskCalendar.taskid = :taskid', { taskid: task.taskid })
+          .andWhere('taskCalendar.day = :day', { day: infoDay.infoDay })
+          .getRawOne();
+        const day = task.day.split(',').map(Number);
+        return {
+          ...task,
+          day: day,
+          remaining: task.limit - count.count / countTasks,
+        };
+      }),
+    );
+
+    return tasksFormatted;
   }
 
   async find(day: string): Promise<Task[]> {
@@ -52,10 +65,17 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskid} not found`);
     }
+
+    const count = await this.tasksRepository.count({
+      where: { taskid, day: task.day }, // Correção 3
+    });
+
     const day = task.day.split(',').map(Number);
+
     return {
       ...task,
       day: day,
+      remaining: task.limit - count,
     };
   }
 

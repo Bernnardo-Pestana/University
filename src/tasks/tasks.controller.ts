@@ -33,9 +33,14 @@ export class TasksController {
     return this.tasksService.create(userid, createTaskDto);
   }
 
-  @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  @Post('info')
+  findAll(@Body() infoDay: Date) {
+    return this.tasksService.findAll(infoDay);
+  }
+
+  @Post('find')
+  find(@Body() infoDay: any) {
+    return this.tasksService.find(infoDay.day);
   }
 
   @Get(':id')

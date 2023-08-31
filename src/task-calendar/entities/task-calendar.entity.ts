@@ -1,8 +1,10 @@
+import { Task } from 'src/tasks/entities/task.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -30,6 +32,9 @@ export class TaskCalendar {
 
   @DeleteDateColumn({ name: 'deletedAt', type: 'timestamp', nullable: true })
   deletedAt: Date | null;
+
+  @ManyToMany(() => Task, (task) => task.taskCalendars)
+  tasks: Task[];
 
   constructor() {
     this.ticketid = !this.ticketid ? uuidv4() : '';
