@@ -40,6 +40,11 @@ export class TaskCalendarController {
     return this.taskCalendarService.findMyTickets(id);
   }
 
+  @Get(':userId/history')
+  findHistory(@Param('userId') id: string) {
+    return this.taskCalendarService.findHistory(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.taskCalendarService.remove(id);

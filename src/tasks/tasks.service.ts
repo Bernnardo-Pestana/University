@@ -38,7 +38,7 @@ export class TasksService {
           .select('COUNT(taskCalendar.taskid)', 'count')
           .from(TaskCalendar, 'taskCalendar')
           .where('taskCalendar.taskid = :taskid', { taskid: task.taskid })
-          .andWhere('taskCalendar.day = :day', { day: infoDay.infoDay })
+          .andWhere('CAST(taskCalendar.day as Date) = :day', { day: infoDay.date.split('T')[0] })
           .getRawOne();
         const day = task.day.split(',').map(Number);
         return {
@@ -79,7 +79,7 @@ export class TasksService {
     };
   }
 
-  async update(taskid: string, updateTaskDto: UpdateTaskDto) {
+  async update(taskid: string, updateTaskDto: any) {
     const dayAsString = updateTaskDto.day.join(',');
     const transformedDto = {
       ...updateTaskDto,

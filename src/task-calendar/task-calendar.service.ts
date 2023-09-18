@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TaskCalendar } from './entities/task-calendar.entity';
 import { TasksService } from 'src/tasks/tasks.service';
+import { Task } from '../tasks/entities/task.entity';
 
 @Injectable()
 export class TaskCalendarService {
@@ -15,7 +16,7 @@ export class TaskCalendarService {
     @InjectRepository(TaskCalendar)
     private readonly taskCalendarRepository: Repository<TaskCalendar>,
     private readonly tasksService: TasksService,
-  ) {}
+  ) { }
   async create(userid: string, createTaskCalendarDto: CreateTaskCalendarDto) {
     const { taskid, day } = createTaskCalendarDto;
     const count = await this.taskCalendarRepository.count({
@@ -73,6 +74,25 @@ export class TaskCalendarService {
       await this.taskCalendarRepository.save(ticket);
     } catch (error) {
       return error;
+    }
+  }
+
+  async findHistory(userId) {
+    try {
+      const ticket = await this.taskCalendarRepository.createQueryBuilder('taskCalendar')
+        .innerJoinAndMapOne('taskCalendar.taskid', Task, 'task', 'task.taskid = taskCalendar.taskid')
+        .select('COUNT(taskCalendar.taskid)', 'count')
+        .addSelect('task.title','task')
+        .where('taskCalendar.userid = :userId', { userId: userId })
+        .orderBy('count','DESC')
+        .groupBy('task')
+        .limit(10)
+        .getRawMany();
+
+
+      return ticket
+    } catch (error) {
+      return error
     }
   }
 }
